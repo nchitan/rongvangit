@@ -1,0 +1,100 @@
+pusth
+
+https://www.webprofessional.jp/add-real-time-notifications-laravel-pusher/
+
+
+
+(WITH tmp AS (
+  SELECT users.name as username, tags.tag_name as tag_name, tag_id, user_id
+  FROM tag_followers
+  LEFT JOIN users ON users.id = tag_followers.user_id
+  LEFT JOIN tags ON tags.id = tag_followers.tag_id WHERE tag_followers.user_id = '3' 
+)
+SELECT tmp2.author as username, title,item,created_at,tags,count,profile_photo_path
+FROM tmp
+
+LEFT JOIN (
+    SELECT posts.title, 
+    users.name as author, 
+    posts.item, 
+    posts.created_at, 
+    temp_tbl.tags,
+    ifnull(temp_tbl2.count_like_post, 0) as count,
+
+    users.profile_photo_path
+    FROM posts
+    LEFT JOIN (
+        SELECT post_tag_grps.post_id as post_id, GROUP_CONCAT(tags.tag_name) as tags
+        FROM post_tag_grps
+        LEFT JOIN tags ON post_tag_grps.tag_id = tags.id
+        GROUP BY post_tag_grps.post_id
+    ) AS temp_tbl
+    ON temp_tbl.post_id = posts.id
+
+    LEFT JOIN(
+      SELECT post_likes.post_id as post_id,
+      COUNT(DISTINCT post_likes.user_id) as count_like_post
+      FROM post_likes
+      GROUP BY post_likes.post_id
+    ) AS temp_tbl2
+    ON temp_tbl2.post_id = posts.id
+
+
+
+    LEFT JOIN users ON posts.user_id = users.name
+    WHERE posts.status = 1
+    ORDER BY posts.created_at desc
+
+) AS tmp2
+ON LOCATE(tmp.tag_name,tmp2.tags)
+WHERE item IS NOT NULL
+GROUP BY username, title,  item ,created_at,tags,profile_photo_path)
+
+UNION ALL
+
+(WITH tmp AS (SELECT users.name as username
+    FROM followers
+    LEFT JOIN 
+    users
+    ON users.id = followers.user_id  WHERE followers.follows_id = '3'  )
+SELECT tmp.username, title,item,created_at,tags,count,profile_photo_path
+FROM tmp
+LEFT JOIN (
+    SELECT 
+    posts.title, 
+    
+    users.name as author, 
+    posts.item, 
+    posts.created_at, 
+    temp_tbl.tags,
+    ifnull(temp_tbl2.count_like_post, 0) as count,
+
+    users.profile_photo_path
+    FROM posts
+    LEFT JOIN (
+        SELECT post_tag_grps.post_id as post_id, GROUP_CONCAT(tags.tag_name) as tags
+        FROM post_tag_grps
+        LEFT JOIN tags ON post_tag_grps.tag_id = tags.id
+        GROUP BY post_tag_grps.post_id
+    ) AS temp_tbl
+    ON temp_tbl.post_id = posts.id
+
+    LEFT JOIN(
+    SELECT post_likes.post_id as post_id,
+    COUNT(DISTINCT post_likes.user_id) as count_like_post
+    FROM post_likes
+    GROUP BY post_likes.post_id
+    ) AS temp_tbl2
+    ON temp_tbl2.post_id = posts.id
+
+
+
+    LEFT JOIN users ON posts.user_id = users.name
+    WHERE posts.status = 1
+    ORDER BY posts.created_at desc
+) AS tmp2
+ON tmp.username = tmp2.author
+WHERE item IS NOT NULL
+GROUP BY username, title, item ,created_at,tags,profile_photo_path)
+
+ORDER BY created_at desc)

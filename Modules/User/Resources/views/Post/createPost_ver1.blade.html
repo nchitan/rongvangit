@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tagify - Hide placeholder if tags exist</title>
+  <meta name="description" content="Tagify">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <meta name="author" content="Yair Even Or">
+  
+  <script src="https://unpkg.com/@yaireo/tagify"></script>
+  <script src="https://unpkg.com/@yaireo/tagify@3.1.0/dist/tagify.polyfills.min.js"></script>
+  <link href="https://unpkg.com/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+  
+  <style>
+    .tagify+input{
+      display: block !important;
+      position: static !important;
+      transform: none !important;
+      width: 100%;
+      margin-top: 1em;
+      padding: .5em;
+    }
+
+body{  
+  font: 13px arial;
+}
+
+
+/* method 1 */
+.tagify__tag + .tagify__input::before{ opacity:0; }
+
+/* method 2 */
+.tagify:not(.tagify--noTags){
+  --placeholder-color: transparent;
+  --placeholder-color-focus: transparent;
+}
+  </style>
+</head>
+<body>
+  
+<input name='tags3'  pattern='^[A-Za-z_✲ ]{1,15}$'>
+  
+</body>
+
+<script type="text/javascript">
+var input = document.querySelector('input[name=tags3]'),
+    tagify = new Tagify(input, {
+        pattern             : /^.{0,15}$/,  // Validate typed tag(s) by Regex. Here maximum chars length is defined as "20"
+        delimiters          : ",| ",        // add new tags when a comma or a space character is entered
+        keepInvalidTags     : true,         // do not remove invalid tags (but keep them marked as invalid)
+        editTags            : {
+            clicks: 2,              // single click to edit a tag
+            keepInvalid: false      // if after editing, tag is invalid, auto-revert
+        },
+        maxTags             : 3,
+
+        whitelist           : ["temple","stun","dog"],
+
+    })
+
+
+
+
+
+
+
+
+</script>
+</html>
